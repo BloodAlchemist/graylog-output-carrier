@@ -1,6 +1,7 @@
 package com.alchemist.graylog.plugin;
 
 import com.alchemist.graylog.plugin.helpers.ParseHelper;
+import com.alchemist.graylog.plugin.sender.MattermostSender;
 import com.alchemist.graylog.plugin.sender.SlackSender;
 import com.alchemist.graylog.plugin.sender.TelegramSender;
 import org.graylog2.plugin.configuration.Configuration;
@@ -38,6 +39,7 @@ public final class GraylogOutputCarrierConfig {
     private static final Map<String, String> WEBHOOK_TYPE = new HashMap<String, String>() {{
         put(SlackSender.TAG, "Slack messenger");
         put(TelegramSender.TAG, "Telegram messenger");
+        put(MattermostSender.TAG, "Mattermost messenger");
     }};
 
     private static final int LEVEL_DEFAULT = 3;
@@ -71,7 +73,7 @@ public final class GraylogOutputCarrierConfig {
 
         // Webhook type field
         configuration.addField(
-                new DropdownField(CONF_WEBHOOK_TYPE, "Webhook type", null, WEBHOOK_TYPE,
+                new DropdownField(CONF_WEBHOOK_TYPE, "Webhook type", SlackSender.TAG, WEBHOOK_TYPE,
                         "Select messenger.",
                         ConfigurationField.Optional.NOT_OPTIONAL));
 

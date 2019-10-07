@@ -45,6 +45,10 @@ public final class SenderFactory {
             return new TelegramSender(stream, webhookUrl, channel, graylogUrl, textLimit, additionalFields);
         }
 
+        if (type.equalsIgnoreCase(MattermostSender.TAG)) {
+            return new MattermostSender(stream, webhookUrl, channel, graylogUrl, textLimit, additionalFields);
+        }
+
         throw new Exception("Unsupported Sender type");
     }
 

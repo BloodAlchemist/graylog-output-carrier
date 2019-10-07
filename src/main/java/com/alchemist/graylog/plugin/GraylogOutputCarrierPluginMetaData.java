@@ -62,7 +62,7 @@ public final class GraylogOutputCarrierPluginMetaData implements PluginMetaData 
      */
     @Override
     public Version getVersion() {
-        return Version.from(1, 1, 0);
+        return Version.from(1, 2, 0);
     }
 
     /**

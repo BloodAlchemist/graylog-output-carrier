@@ -90,7 +90,7 @@ public final class GraylogOutputCarrierMessageOutput implements MessageOutput {
             final String facility = MessageHelper.getFacility(message);
             if (facility != null && !facility.isEmpty()) {
                 for (final String rule : ignoredFacilities) {
-                    if (rule.trim().contains(facility.trim().toLowerCase())) {
+                    if (rule.toLowerCase().trim().contains(facility.trim().toLowerCase())) {
                         logger.warning(String.format("Skipped message from stream: %s due to facility: %s ~ %s", stream, rule, facility));
                         return;
                     }
