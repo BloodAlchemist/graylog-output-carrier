@@ -34,9 +34,19 @@ Settings:
 * `Level` - Set limit messages level (min 0, max: 7), values work like Syslog
 * `Grace` - Wait (sec) between send, rest will be ignored (min: 1, max: 60)
 * `Text limit` - Text message limit (min 100, max 3000)
-* `Ignored facilities` - Ignored facilities (separated by comma)
+* `Ignored fields` - Messages will be ignored by rules (JSON object) 
 * `Additional fields` - Additional fields in title or pretext (separated by comma)
 * `Graylog URL` - URL to your Graylog web interface
+
+#### Ignored fields
+
+Should be valid JSON object with uniq keys and list values.
+
+Example:
+
+```json
+{"facility": ["com.package.a", "partoftext"], "custom": ["warning", "info", "debug"]}
+```
 
 #### Slack
 

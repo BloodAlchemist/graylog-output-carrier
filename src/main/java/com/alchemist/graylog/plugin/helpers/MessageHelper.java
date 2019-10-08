@@ -62,4 +62,22 @@ public final class MessageHelper {
         }
         return null;
     }
+
+    /**
+     * Get value.
+     *
+     * @param message Message
+     * @param field   String
+     * @return String
+     */
+    public static String getStringValue(final Message message, final String field) {
+        try {
+            if (message.hasField(field)) {
+                return message.getField(field).toString();
+            }
+        } catch (final Exception e) {
+            logger.warning(String.format("Message field %s cannot be cast to String", e.getMessage()));
+        }
+        return null;
+    }
 }

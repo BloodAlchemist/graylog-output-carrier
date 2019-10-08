@@ -19,6 +19,7 @@ import org.graylog2.plugin.outputs.MessageOutputConfigurationException;
 import org.graylog2.plugin.streams.Stream;
 
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -32,7 +33,7 @@ public final class GraylogOutputCarrierMessageOutput implements MessageOutput {
     private final Stream stream;
 
     private final int edgeLevel;
-    private List<String> ignoredFacilities;
+    private Map<String, List<String>> ignoredFields;
 
     private final IGrace grace;
     private final ISender sender;
@@ -57,7 +58,7 @@ public final class GraylogOutputCarrierMessageOutput implements MessageOutput {
         }
 
         this.edgeLevel = GraylogOutputCarrierConfig.getLevel(configuration);
-        this.ignoredFacilities = GraylogOutputCarrierConfig.getIgnoredFacilities(configuration);
+        this.ignoredFields = GraylogOutputCarrierConfig.getIgnoredFields(configuration);
 
         try {
             this.sender = SenderFactory.getSender(stream, configuration);
@@ -85,14 +86,22 @@ public final class GraylogOutputCarrierMessageOutput implements MessageOutput {
             return;
         }
 
-        // Check facility
-        if (ignoredFacilities != null && !ignoredFacilities.isEmpty()) {
-            final String facility = MessageHelper.getFacility(message);
-            if (facility != null && !facility.isEmpty()) {
-                for (final String rule : ignoredFacilities) {
-                    if (rule.toLowerCase().trim().contains(facility.trim().toLowerCase())) {
-                        logger.warning(String.format("Skipped message from stream: %s due to facility: %s ~ %s", stream, rule, facility));
-                        return;
+        // Check ignored fields
+        if (ignoredFields != null && !ignoredFields.isEmpty()) {
+            for (final String field : ignoredFields.keySet()) {
+                if (message.hasField(field)) {
+                    final List<String> rules = ignoredFields.get(field);
+                    if (!rules.isEmpty()) {
+                        final String value = MessageHelper.getStringValue(message, field);
+                        if (value != null) {
+                            for (final String rule : rules) {
+                                if (value.toLowerCase().trim().contains(rule.toLowerCase().trim())) {
+                                    logger.warning(String.format("Skipped message from stream: %s due to field: %s:%s ~ %s:%s", stream, field, rule, field, value));
+                                    return;
+                                }
+                            }
+                        }
+
                     }
                 }
             }

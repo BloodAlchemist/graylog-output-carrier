@@ -32,9 +32,10 @@ public final class GraylogOutputCarrierConfig {
     private static final String CONF_LEVEL = "level";
     private static final String CONF_GRACE = "grace";
     private static final String CONF_TEXT_LIMIT = "text_limit";
-    private static final String CONF_IGNORED_FACILITIES = "ignored_facilities";
     private static final String CONF_ADDITIONAL_FIELDS = "additional_fields";
+    private static final String CONF_IGNORED_FIELDS = "ignored_fields";
     private static final String CONF_GRAYLOG_URL = "graylog_url";
+
 
     private static final Map<String, String> WEBHOOK_TYPE = new HashMap<String, String>() {{
         put(SlackSender.TAG, "Slack messenger");
@@ -54,8 +55,8 @@ public final class GraylogOutputCarrierConfig {
     private static final int TEXT_LIMIT_MIN = 100;
     private static final int TEXT_LIMIT_MAX = 3000;
 
-    private static final int IGNORED_FACILITIES_MAX = 500;
     private static final int ADDITIONAL_FIELDS_MAX = 500;
+    private static final int IGNORED_FIELDS_MAX = 500;
 
     /**
      * Constructor.
@@ -107,11 +108,11 @@ public final class GraylogOutputCarrierConfig {
                         String.format("Text message limit (min %s, max %s)", TEXT_LIMIT_MIN, TEXT_LIMIT_MAX),
                         ConfigurationField.Optional.NOT_OPTIONAL, NumberField.Attribute.ONLY_POSITIVE));
 
-        // Ignored facilities field
+        // Message fields
         configuration.addField(
-                new TextField(CONF_IGNORED_FACILITIES, "Ignored facilities", null,
-                        "Ignored facilities separated by comma.",
-                        ConfigurationField.Optional.OPTIONAL));
+                new TextField(CONF_IGNORED_FIELDS, "Ignored fields", null,
+                        "Rules for ignored message",
+                        ConfigurationField.Optional.OPTIONAL, TextField.Attribute.TEXTAREA));
 
         // Additional fields field
         configuration.addField(
@@ -173,10 +174,14 @@ public final class GraylogOutputCarrierConfig {
             throw new ConfigurationException("Text limit value is wrong.");
         }
 
-        if (configuration.stringIsSet(CONF_IGNORED_FACILITIES)) {
-            final String ignored_facilities = configuration.getString(CONF_IGNORED_FACILITIES);
-            if (ignored_facilities != null && ignored_facilities.length() > IGNORED_FACILITIES_MAX) {
-                throw new ConfigurationException(String.format("Ignored facilities value is too long. Limit is %s symbols.", IGNORED_FACILITIES_MAX));
+        if (configuration.stringIsSet(CONF_IGNORED_FIELDS)) {
+            final String ignored_fields = configuration.getString(CONF_IGNORED_FIELDS);
+            if (ignored_fields != null && ignored_fields.length() > IGNORED_FIELDS_MAX) {
+                throw new ConfigurationException(String.format("Ignored fields value is too long. Limit is %s symbols.", IGNORED_FIELDS_MAX));
+            }
+            // Check JSON
+            if (ParseHelper.toMapList(ignored_fields) == null) {
+                throw new ConfigurationException("Ignored fields value must be a valid JSON");
             }
         }
 
@@ -265,13 +270,13 @@ public final class GraylogOutputCarrierConfig {
     }
 
     /**
-     * Get ignored facilities.
+     * Get ignored fields.
      *
      * @param configuration Configuration
-     * @return List
+     * @return Map
      */
-    public static List<String> getIgnoredFacilities(final Configuration configuration) {
-        return ParseHelper.toList(configuration.getString(CONF_IGNORED_FACILITIES));
+    public static Map<String, List<String>> getIgnoredFields(final Configuration configuration) {
+        return ParseHelper.toMapList(configuration.getString(CONF_IGNORED_FIELDS));
     }
 
     /**
@@ -311,5 +316,4 @@ public final class GraylogOutputCarrierConfig {
     private static boolean checkUriSchema(final URI uri, final String... validSchemes) {
         return uri.getScheme() != null && Arrays.binarySearch(validSchemes, uri.getScheme(), null) >= 0;
     }
-
 }

@@ -1,8 +1,12 @@
 package com.alchemist.graylog.plugin.helpers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -55,12 +59,26 @@ public final class ParseHelper {
     /**
      * Parse CSV list.
      *
-     * @param value String
+     * @param csv String
      * @return List
      */
-    public static List<String> toList(final String value) {
-        return toList(value, ",");
+    public static List<String> toList(final String csv) {
+        return toList(csv, ",");
     }
 
-
+    /**
+     * Parse JSON to Map with Lists.
+     *
+     * @param json String
+     * @return Map
+     */
+    public static Map<String, List<String>> toMapList(final String json) {
+        final ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(json, new TypeReference<Map<String, List<String>>>() {
+            });
+        } catch (final Exception e) {
+            return null;
+        }
+    }
 }
