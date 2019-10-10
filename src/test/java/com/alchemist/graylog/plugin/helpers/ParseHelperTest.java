@@ -1,37 +1,19 @@
 package com.alchemist.graylog.plugin.helpers;
 
-import mockit.Mock;
-import mockit.MockUp;
-import mockit.Mocked;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 
-public final class ParseHelperTest {
+public final class ParseHelperTest extends AbstractTest {
 
     private static final List<String> LIST = new ArrayList<>(Arrays.asList("one", "two"));
     private static final Map<String, List<String>> MAP = new HashMap<String, List<String>>() {{
         put("key", LIST);
     }};
-
-    @Mocked
-    private Logger logger;
-
-    @Before
-    public void before() {
-        new MockUp<Logger>() {
-            @Mock
-            public Logger getLogger(String name) {
-                return logger;
-            }
-        };
-    }
 
     @Test
     public void testToInt() {
@@ -48,7 +30,7 @@ public final class ParseHelperTest {
     public void testToList() {
         assertEquals(new ArrayList<>(), ParseHelper.toList(null));
         assertEquals(new ArrayList<>(), ParseHelper.toList(""));
-        assertEquals(new ArrayList<>(), ParseHelper.toList(",","\\"));
+        assertEquals(new ArrayList<>(), ParseHelper.toList(",", "\\"));
 
         assertEquals(LIST, ParseHelper.toList("one, two"));
     }

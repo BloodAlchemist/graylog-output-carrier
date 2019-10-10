@@ -13,7 +13,8 @@ import java.util.logging.Logger;
 public final class MessageHelper {
     private static final Logger logger = Logger.getLogger(MessageHelper.class.getName());
 
-    private static final int DEFAULT_LEVEL = 7;
+    public static final String URL_TPL = "%sstreams/%s/search?relative=0&q=_id:%s";
+    public static final int DEFAULT_LEVEL = 7;
 
     /**
      * Constructor.
@@ -30,7 +31,8 @@ public final class MessageHelper {
      * @return String
      */
     public static String getURL(final String root, final Stream stream, final Message message) {
-        return String.format("%sstreams/%s/search?relative=0&q=_id:%s", root, stream.getId(), message.getId());
+        final String id = getFirstStreamId(message);
+        return String.format(URL_TPL, root, (id != null ? id : stream.getId()), message.getId());
     }
 
     /**
@@ -72,11 +74,30 @@ public final class MessageHelper {
      */
     public static String getStringValue(final Message message, final String field) {
         try {
-            if (message.hasField(field)) {
-                return message.getField(field).toString();
+            if (message != null && field != null && !field.isEmpty()) {
+                if (message.hasField(field)) {
+                    return message.getField(field).toString();
+                }
             }
         } catch (final Exception e) {
             logger.warning(String.format("Message field %s cannot be cast to String", e.getMessage()));
+        }
+        return null;
+    }
+
+    /**
+     * Get first stream id.
+     *
+     * @param message Message
+     * @return String
+     */
+    public static String getFirstStreamId(final Message message) {
+        try {
+            if (message != null) {
+                return message.getStreams().iterator().next().getId();
+            }
+        } catch (final Exception e) {
+            logger.warning(String.format("Receiving message streams is failed: %s", e.getMessage()));
         }
         return null;
     }
